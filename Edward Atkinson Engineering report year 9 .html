@@ -1,0 +1,151 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Engineering Report | Pinball Machine</title>
+<style>
+:root{--navy:#142b3b;--blue:#246b82;--teal:#a9d6d5;--paper:#f5f7f8;--line:#dce4e8;--muted:#667985;--white:#fff;--gold:#e5b96a}
+*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:var(--paper);color:var(--navy);font:15px/1.65 "Aptos","Segoe UI",Arial,sans-serif}
+button,input,textarea,select{font:inherit}button{cursor:pointer}
+.topbar{position:sticky;top:0;z-index:10;background:rgba(20,43,59,.97);color:white;border-bottom:3px solid var(--teal);backdrop-filter:blur(10px)}
+.top-inner{max-width:1400px;margin:auto;padding:13px 24px;display:flex;align-items:center;justify-content:space-between;gap:16px}
+.brand{display:flex;align-items:center;gap:12px}.mark{width:40px;height:40px;border:1px solid #7fb8bf;border-radius:12px;display:grid;place-items:center;color:var(--teal);font-size:20px}
+.kicker{font-size:10px;letter-spacing:.17em;text-transform:uppercase;color:#b9dfe1;font-weight:700}.brand h1{font-size:17px;line-height:1.2;margin:3px 0 0;font-weight:650}
+.actions{display:flex;gap:8px;flex-wrap:wrap}.btn{border:1px solid #456273;background:#203f51;color:white;border-radius:9px;padding:8px 12px;font-size:12px;font-weight:650}.btn:hover{background:#2c5266}.btn.primary{background:var(--teal);color:#102d3c;border-color:var(--teal)}.btn.light{background:white;color:var(--navy);border-color:var(--line)}
+.layout{max-width:1400px;margin:0 auto;padding:28px 22px;display:grid;grid-template-columns:245px minmax(0,1fr);gap:24px}
+.sidebar{align-self:start;position:sticky;top:88px;max-height:calc(100vh - 110px);overflow:auto;background:white;border:1px solid var(--line);border-radius:16px;padding:12px;box-shadow:0 8px 28px #142b3b0a}
+.nav-label{font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--muted);font-weight:800;padding:9px 10px 12px}
+.nav button{display:flex;align-items:center;gap:10px;width:100%;text-align:left;border:1px solid transparent;background:transparent;color:#435967;border-radius:9px;padding:9px 10px;font-size:12px;margin:2px 0}.nav button:hover{background:#f2f7f8}.nav button.active{background:#e8f4f3;border-color:#b5d8d7;color:#123d4a;font-weight:750}.num{font:10px "SFMono-Regular",Consolas,monospace;color:#78909c;min-width:25px}
+main{min-width:0}.statusline{display:flex;align-items:center;justify-content:space-between;gap:12px;margin:0 0 16px;color:var(--muted);font-size:11px}.saved{display:inline-flex;align-items:center;gap:7px}.dot{width:7px;height:7px;border-radius:50%;background:#3e9b7b}
+.page{display:none;animation:fade .2s ease}.page.active{display:block}@keyframes fade{from{opacity:.4;transform:translateY(4px)}to{opacity:1;transform:none}}
+.sheet{background:white;border:1px solid var(--line);border-radius:18px;padding:clamp(22px,4vw,48px);box-shadow:0 12px 34px #142b3b0b}
+.cover{min-height:620px;background:linear-gradient(135deg,#142b3b 0%,#1e5062 65%,#367b85 100%);color:white;border:0;position:relative;overflow:hidden;display:flex;flex-direction:column;justify-content:space-between}
+.cover:after{content:"";position:absolute;width:440px;height:440px;border:1px solid #ffffff20;border-radius:50%;right:-120px;top:-120px;box-shadow:0 0 0 36px #ffffff08,0 0 0 72px #ffffff06}
+.cover>*{position:relative;z-index:1}.cover-tag{display:inline-block;border:1px solid #9ed6d6;color:#c7eeee;padding:6px 10px;border-radius:6px;font-size:10px;letter-spacing:.16em;font-weight:800}.cover h2{font-size:clamp(34px,5vw,60px);line-height:1.04;letter-spacing:-.04em;max-width:720px;margin:25px 0 18px}.cover .subtitle{font-size:17px;max-width:640px;color:#d6e8eb}.cover-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:18px;border-top:1px solid #ffffff35;padding-top:22px;margin-top:45px}.meta-label{font-size:9px;text-transform:uppercase;letter-spacing:.13em;color:#b9dfe1;font-weight:800}.meta-value{margin-top:4px;font-size:13px;color:white}
+.eyebrow{font-size:10px;letter-spacing:.17em;text-transform:uppercase;color:var(--blue);font-weight:800;margin:0 0 7px}.sheet h2{font-size:clamp(26px,3vw,36px);line-height:1.18;letter-spacing:-.025em;margin:0 0 20px}.sheet h3{font-size:18px;margin:28px 0 10px}.intro{color:var(--muted);max-width:760px;margin-top:-8px}
+.prompt{background:#f0f7f7;border-left:3px solid var(--blue);border-radius:0 10px 10px 0;padding:17px 19px;color:#385563;margin:22px 0}.prompt strong{color:#163b4a}.editable{outline:none;white-space:pre-wrap;min-height:75px;padding:13px 14px;border:1px solid var(--line);border-radius:10px;background:#fcfdfd;color:#233e4c}.editable:focus{border-color:#75b8bd;box-shadow:0 0 0 3px #a9d6d533}.editable:empty:before{content:attr(data-placeholder);color:#91a0a8}
+.field{margin:16px 0}.field label{display:block;font-size:11px;letter-spacing:.04em;text-transform:uppercase;font-weight:800;color:#526a76;margin-bottom:7px}.field input,.field textarea{width:100%;border:1px solid var(--line);border-radius:9px;padding:11px 12px;color:var(--navy);background:#fcfdfd}.field textarea{min-height:120px;resize:vertical}
+.evidence{border:1px dashed #a9bac2;background:#f7fafb;border-radius:12px;min-height:175px;padding:20px;display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center;color:#6d818b;gap:9px}.evidence strong{color:#3d5d6b}.evidence input{max-width:100%;font-size:12px}.evidence img{max-width:100%;max-height:460px;object-fit:contain;border-radius:8px}.evidence .hint{font-size:11px}.evidence.has-image .evidence-placeholder{display:none}.evidence-actions{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin-top:10px}.evidence-actions button,.prompt-actions button,.description-toggle{border:1px solid var(--line);background:#fff;color:var(--navy);border-radius:7px;padding:6px 10px;font-size:11px}.description-hidden{display:none!important}.prompt-hidden{display:none!important}.intro-tools{display:flex;justify-content:flex-end;margin:-6px 0 10px}.prompt-tools{display:flex;justify-content:flex-end;margin-top:8px}
+.cols{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px}.cols.three{grid-template-columns:repeat(3,minmax(0,1fr))}.mini-card{border:1px solid var(--line);border-radius:12px;padding:18px;background:#fbfcfc}.mini-card h3{margin:0 0 10px;font-size:15px}.table-wrap{overflow:auto;border:1px solid var(--line);border-radius:10px;margin:18px 0}table{border-collapse:collapse;width:100%;min-width:430px;font-size:12px}th{background:#edf4f5;text-align:left;color:#294b59}th,td{border-bottom:1px solid var(--line);padding:11px 12px;vertical-align:top}td[contenteditable=true]{min-width:110px;outline:none}.add-row{margin:0 0 18px}
+.footer-note{text-align:center;color:#82929a;font-size:10px;margin:24px 0 0}
+@media(max-width:850px){.layout{grid-template-columns:1fr;padding:15px}.sidebar{position:static;max-height:none}.nav{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:2px}.top-inner{align-items:flex-start;padding:12px 15px}.brand h1{font-size:14px}.actions .btn{padding:7px 9px}.cover-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.cols.three{grid-template-columns:1fr}}
+@media(max-width:540px){.top-inner{flex-direction:column}.actions{width:100%}.nav{grid-template-columns:1fr 1fr}.sheet{padding:21px}.cols{grid-template-columns:1fr}.cover{min-height:580px}.cover-grid{gap:13px}}
+@media print{body{background:white}.topbar,.sidebar,.statusline,.print-hide,.footer-note{display:none!important}.layout{display:block;padding:0;max-width:none}.page{display:block!important;page-break-after:always;break-after:page}.sheet{box-shadow:none;border:0;border-radius:0;padding:14mm;min-height:250mm}.cover{print-color-adjust:exact;-webkit-print-color-adjust:exact}.editable{border:1px solid #bbb}.evidence{break-inside:avoid}}
+</style>
+</head>
+<body>
+<header class="topbar print-hide"><div class="top-inner">
+<div class="brand"><div class="mark">⌁</div><div><div class="kicker">Year 9 · Industrial Technology Engineering</div><h1>Pinball Machine — Engineering Report</h1></div></div>
+<div class="actions"><button class="btn" id="exportBtn">Export backup</button><button class="btn" id="importBtn">Import backup</button><button class="btn" id="printBtn">Print / PDF</button><button class="btn primary" id="saveBtn">Save now</button><input id="importFile" type="file" accept="application/json" hidden></div>
+</div></header>
+<div class="layout">
+<aside class="sidebar print-hide"><div class="nav-label">Report contents</div><nav class="nav" id="nav"></nav></aside>
+<main><div class="statusline print-hide"><span id="sectionCount">Engineering report workspace</span><span class="saved"><span class="dot"></span><span id="saveStatus">Autosave ready</span></span></div><div id="pages"></div><p class="footer-note">ENGINEERING REPORT WORKSPACE · Your edits are saved in this browser when storage is available. Export a backup regularly.</p></main>
+</div>
+<script>
+const sections = [
+["cover","Cover page","Engineering Report: Pinball Machine","Formal record of the research, design, manufacture, calculations, testing and evaluation of a pinball machine."],
+["contents","Table of contents","Table of Contents","Update the page numbers once the report is complete."],
+["introduction","1.0","Introduction","Explain the purpose of the project, define key terms such as mechanism, CAD, testing and evaluation, and preview the report."],
+["procedure","2.0","Procedure Overview","Give a chronological account of research, idea generation, prototypes, mechanisms, calculations, manufacturing and testing. Use evidence to support the process."],
+["time-action-plan","2.1","Time Action Plan","Insert your project schedule and briefly explain how you planned and tracked the work."],
+["investigation","2.2","Areas of Investigation","Show your investigation mind map and explain the most important questions you needed to answer before designing."],
+["criteria","2.3","Criteria for Evaluation","Define measurable criteria for function, safety, appearance, accuracy, reliability and how well the machine meets the project brief."],
+["research","2.4","Research: Materials and Mechanisms","Research materials, joins and mechanisms. Explain how simple machines or mechanical features could improve the design."],
+["existing-machines","2.4.1","Existing Pinball Machines","Annotate an existing machine. Discuss playfield layout, launcher, bumpers, scoring, materials, theme, safety and mechanisms."],
+["sketch-one","2.5.1","Your Initial Sketch","Insert your initial design sketch. Label layout, mechanisms, theme, materials, strengths and limitations."],
+["sketch-two","2.5.2","Partner’s Initial Sketch","Insert your partner’s sketch and identify useful ideas that could influence the final design."],
+["sketch-three","2.5.3","Final Design Sketch","Insert your fully rendered and labelled final design. Explain which features were selected from the initial concepts."],
+["cad","2.6","Final Design and CAD","Include an orthogonal drawing and a rendered isometric drawing of one component, created in CAD."],
+["calculations","2.7","Mathematical Calculations","Show equations, units, labelled diagrams and each working step. Define input force, output force and distances where relevant."],
+["production","2.8","Production and Manufacture","Document the build in chronological order, including tools, materials, joining methods, changes and workshop safety."],
+["testing","3.0","Testing","Describe prototype and final-machine tests, methods, results, problems, changes and comparison with the evaluation criteria."],
+["conclusion","4–5","Evaluation and Conclusion","Evaluate how well the final machine met each criterion. Explain successes, limitations, improvements and what you learned."],
+["acknowledgements","6.0","Acknowledgements","Acknowledge people who genuinely provided advice, materials, feedback or practical assistance."],
+["bibliography","7.0","Bibliography","List every source used in a consistent referencing style, including books, websites, videos, reports and images."],
+["whs","Part 3","Machine Risk and WHS Analysis","Select a machine such as a disc sander, drill press, scroll saw or laser cutter, and document its risks and safe operation."]
+];
+const nav=document.getElementById('nav'), pages=document.getElementById('pages');
+const key='engineeringReportPinball_v2';
+let state={};
+function esc(s){return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
+function addEditable(id,placeholder,content=''){return `<div class="editable" contenteditable="true" data-key="${id}" data-placeholder="${esc(placeholder)}">${content?esc(content):''}</div>`}
+function evidence(id,label){return `<div class="evidence" data-evidence="${id}"><div class="evidence-placeholder"><strong>${label}</strong><span class="hint">Choose an image from your device. It will be included in an exported backup.</span><input type="file" accept="image/*" data-image-input="${id}"></div><div data-image-preview="${id}"></div><div class="evidence-actions"><button type="button" data-remove-image="${id}" hidden>Remove image</button><button type="button" data-replace-image="${id}" hidden>Replace image</button></div></div>`}
+function field(id,label,placeholder){return `<div class="field"><label>${label}</label><input data-key="${id}" placeholder="${placeholder||''}"></div>`}
+function buildSection(s,i){
+ const [id,num,title,desc]=s;
+ if(id==='cover')return `<article class="page active" id="page-${id}"><div class="sheet cover"><div><span class="cover-tag">ENGINEERING REPORT · ASSESSMENT TASK</span><div class="kicker" style="margin-top:30px">YEAR 9 / DESIGN · MAKE · TEST</div><h2 contenteditable="true" data-key="cover-title">Engineering Report:<br>Pinball Machine</h2><div class="intro-tools"><button type="button" class="description-toggle" data-toggle-description="cover">Hide description</button></div><p class="subtitle" contenteditable="true" data-description="cover" data-key="cover-subtitle">${desc}</p></div><div>${evidence('cover-photo','Add a photograph of your finished pinball machine')}<div class="cover-grid">${field('student','Student name','Your full name')}${field('partner','Partner name','Partner name')}${field('teacher','Teacher','Teacher name')}${field('course','Subject / year','Year 9 Engineering')}</div></div></div></article>`;
+ let body=`<div class="intro-tools"><button type="button" class="description-toggle" data-toggle-description="${id}">Hide description</button></div><p class="intro" contenteditable="true" data-description="${id}" data-key="${id}-intro">${desc}</p>`;
+ if(id==='contents'){
+  body+=`<div class="table-wrap"><table><thead><tr><th>Section</th><th>Page</th></tr></thead><tbody>${sections.slice(2).map((x,j)=>`<tr><td>${x[1]} ${x[2]}</td><td contenteditable="true" data-key="contents-page-${x[0]}">—</td></tr>`).join('')}</tbody></table></div>`;
+ } else if(id==='time-action-plan'||id==='investigation'||id.startsWith('sketch-')||id==='existing-machines'){
+  body+=evidence(id+'-image',id==='time-action-plan'?'Add your time action plan':id==='investigation'?'Add your investigation mind map':id==='existing-machines'?'Add an annotated existing machine':'Add your design sketch');
+  body+=`<h3>Notes and design decisions</h3>${addEditable(id+'-notes','Write your observations, annotations and decisions here…')}`;
+ } else if(id==='criteria'){
+  body+=`<div class="table-wrap"><table><thead><tr><th>Criterion</th><th>Target / measure</th><th>Result</th><th>Met?</th></tr></thead><tbody>${['Function','Safety','Appearance','Accuracy','Reliability','Project brief'].map((x,j)=>`<tr><td>${x}</td>${['target','result','met'].map(k=>`<td contenteditable="true" data-key="criteria-${j}-${k}">${k==='met'?'—':''}</td>`).join('')}</tr>`).join('')}</tbody></table></div>`;
+ } else if(id==='research'){
+  body+=`<div class="cols">${evidence('research-image-1','Add a research image')}${evidence('research-image-2','Add a second research image')}</div><h3>Research notes</h3>${addEditable(id+'-notes','Explain the materials, mechanisms and sources you researched…')}`;
+ } else if(id==='cad'){
+  body+=`<h3>Orthogonal CAD drawing</h3>${evidence('cad-orthogonal','Add orthogonal drawing')}<h3>Rendered isometric CAD drawing</h3>${evidence('cad-isometric','Add isometric drawing')}${addEditable(id+'-notes','Explain the component, dimensions and design choices…')}`;
+ } else if(id==='calculations'){
+  body+=`<div class="prompt" data-removable-prompt="${id}-formula"><strong>Example formula:</strong> Mechanical advantage = output force ÷ input force. Replace this example with calculations that apply to your design.<div class="prompt-tools"><button type="button" data-remove-prompt="${id}-formula">Remove prompt</button></div></div>${addEditable(id+'-working','Write equations, substitutions, units and final answers here…')}${evidence(id+'-diagram','Add a labelled calculation diagram if needed')}`;
+ } else if(id==='production'){
+  body+=`<div class="table-wrap"><table><thead><tr><th>Step / date</th><th>Task completed</th><th>Tools and materials</th><th>Safety / changes</th></tr></thead><tbody>${[1,2,3,4].map(n=>`<tr>${['step','task','tools','safety'].map(k=>`<td contenteditable="true" data-key="production-${n}-${k}"></td>`).join('')}</tr>`).join('')}</tbody></table></div>${evidence(id+'-image','Add photographs of the manufacturing process')}`;
+ } else if(id==='testing'){
+  body+=`<div class="cols"><div class="mini-card"><h3>Prototype testing</h3>${evidence('prototype-photo','Add prototype test photo')}${addEditable('prototype-results','Test method, result and changes…')}</div><div class="mini-card"><h3>Final machine testing</h3>${evidence('final-test-photo','Add final test photo')}${addEditable('final-test-results','Test method, result and comparison with criteria…')}</div></div>`;
+ } else if(id==='whs'){
+  body+=`<div class="cols"><div class="mini-card"><h3>Machine name and photo</h3>${field('whs-machine','Selected machine','e.g. drill press')}${evidence('whs-machine-photo','Add machine photo')}</div><div class="mini-card"><h3>PPE required</h3>${addEditable('whs-ppe','List required personal protective equipment…')}</div><div class="mini-card"><h3>Potential hazards</h3>${addEditable('whs-hazards','Explain the hazards specific to the selected machine…')}</div><div class="mini-card"><h3>Operational safety checks</h3>${addEditable('whs-checks','Describe checks before, during and after operation…')}</div></div>`;
+ } else if(id==='bibliography'){
+  body+=`<h3>References</h3>${addEditable(id+'-notes','Add one reference per line. Include author or organisation, date, title, publisher or website, and URL where relevant…')}`;
+ } else if(id==='acknowledgements'){
+  body+=`<h3>People who helped</h3>${addEditable(id+'-notes','Write a short acknowledgement of genuine support…')}`;
+ } else {
+  body+=`<div class="prompt" data-removable-prompt="${id}-guide"><strong>Writing guide</strong><br>${desc}<div class="prompt-tools"><button type="button" data-remove-prompt="${id}-guide">Remove prompt</button></div></div><h3>${id==='introduction'?'Project overview':id==='procedure'?'Process and planning':id==='conclusion'?'Evaluation against criteria':'Section notes'}</h3>${addEditable(id+'-notes','Write your report section here. Replace the guide text with your own formal writing…')}`;
+ }
+ return `<article class="page" id="page-${id}"><div class="sheet"><p class="eyebrow">${num} / ENGINEERING REPORT</p><h2>${title}</h2>${body}</div></article>`;
+}
+sections.forEach((s,i)=>{const b=document.createElement('button');b.innerHTML=`<span class="num">${esc(s[1])}</span><span>${esc(s[2])}</span>`;b.dataset.target=s[0];if(i===0)b.classList.add('active');b.onclick=()=>show(s[0]);nav.appendChild(b);pages.insertAdjacentHTML('beforeend',buildSection(s,i));});
+function show(id){document.querySelectorAll('.page').forEach(p=>p.classList.toggle('active',p.id==='page-'+id));document.querySelectorAll('.nav button').forEach(b=>b.classList.toggle('active',b.dataset.target===id));document.getElementById('sectionCount').textContent=`${sections.findIndex(s=>s[0]===id)+1} of ${sections.length} sections`;window.scrollTo({top:0,behavior:'smooth'});}
+function collect(){const data={fields:{},images:{},hiddenDescriptions:[],removedPrompts:[]};document.querySelectorAll('[data-key]').forEach(el=>data.fields[el.dataset.key]=el.matches('input,textarea,select')?el.value:el.innerHTML);document.querySelectorAll('[data-image-preview]').forEach(el=>{const img=el.querySelector('img');if(img)data.images[el.dataset.imagePreview]=img.src;});document.querySelectorAll('[data-description].description-hidden').forEach(el=>data.hiddenDescriptions.push(el.dataset.description));document.querySelectorAll('[data-removable-prompt].prompt-hidden').forEach(el=>data.removedPrompts.push(el.dataset.removablePrompt));return data}
+function save(){try{state=collect();localStorage.setItem(key,JSON.stringify(state));document.getElementById('saveStatus').textContent='Saved in this browser';}catch(e){document.getElementById('saveStatus').textContent='Use Export backup to save your work';}}
+function apply(data){if(!data)return;state=data;Object.entries(data.fields||{}).forEach(([k,v])=>{const el=document.querySelector(`[data-key="${CSS.escape(k)}"]`);if(el){if(el.matches('input,textarea,select'))el.value=v;else el.innerHTML=v;}});Object.entries(data.images||{}).forEach(([k,src])=>showImage(k,src));(data.hiddenDescriptions||[]).forEach(id=>{const el=document.querySelector(`[data-description="${CSS.escape(id)}"]`);if(el)el.classList.add('description-hidden');const b=document.querySelector(`[data-toggle-description="${CSS.escape(id)}"]`);if(b)b.textContent='Show description';});(data.removedPrompts||[]).forEach(id=>{const el=document.querySelector(`[data-removable-prompt="${CSS.escape(id)}"]`);if(el)el.classList.add('prompt-hidden');});}
+function showImage(id,src){const p=document.querySelector(`[data-image-preview="${CSS.escape(id)}"]`);if(!p)return;p.innerHTML='';const img=document.createElement('img');img.alt='Report evidence';img.src=src;p.appendChild(img);const box=p.closest('.evidence');if(box){box.classList.add('has-image');box.querySelector(`[data-remove-image="${CSS.escape(id)}"]`).hidden=false;box.querySelector(`[data-replace-image="${CSS.escape(id)}"]`).hidden=false;}}
+document.addEventListener('click',e=>{const toggle=e.target.closest('[data-toggle-description]');if(toggle){const id=toggle.dataset.toggleDescription;const el=document.querySelector(`[data-description="${CSS.escape(id)}"]`);if(el){el.classList.toggle('description-hidden');const hidden=el.classList.contains('description-hidden');toggle.textContent=hidden?'Show description':'Hide description';save();}return;}const removePrompt=e.target.closest('[data-remove-prompt]');if(removePrompt){const el=document.querySelector(`[data-removable-prompt="${CSS.escape(removePrompt.dataset.removePrompt)}"]`);if(el){el.classList.add('prompt-hidden');save();}return;}const removeImage=e.target.closest('[data-remove-image]');if(removeImage){const id=removeImage.dataset.removeImage;const box=removeImage.closest('.evidence');const p=box.querySelector(`[data-image-preview="${CSS.escape(id)}"]`);p.innerHTML='';box.classList.remove('has-image');box.querySelector(`[data-image-input="${CSS.escape(id)}"]`).value='';box.querySelector(`[data-remove-image="${CSS.escape(id)}"]`).hidden=true;box.querySelector(`[data-replace-image="${CSS.escape(id)}"]`).hidden=true;save();return;}const replaceImage=e.target.closest('[data-replace-image]');if(replaceImage){const id=replaceImage.dataset.replaceImage;const input=document.querySelector(`[data-image-input="${CSS.escape(id)}"]`);if(input)input.click();}});
+try{const stored=localStorage.getItem(key);if(stored)apply(JSON.parse(stored));}catch(e){}
+document.addEventListener('input',e=>{if(e.target.matches('[data-key]')){document.getElementById('saveStatus').textContent='Unsaved changes…';clearTimeout(window.saveTimer);window.saveTimer=setTimeout(save,500);}});
+document.addEventListener('change',e=>{const input=e.target.closest('[data-image-input]');if(input&&input.files&&input.files[0]){const reader=new FileReader();reader.onload=()=>{const p=document.querySelector(`[data-image-preview="${CSS.escape(input.dataset.imageInput)}"]`);showImage(input.dataset.imageInput,reader.result);save();};reader.readAsDataURL(input.files[0]);}});
+function downloadBackup(){
+  const data=collect();
+  const blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json'});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement('a');
+  a.href=url;
+  a.download='pinball-engineering-report-backup.json';
+  a.style.display='none';
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  setTimeout(()=>URL.revokeObjectURL(url),1500);
+}
+document.getElementById('saveBtn').onclick=()=>{
+  save();
+  try{
+    downloadBackup();
+    document.getElementById('saveStatus').textContent='Backup downloaded — your report is saved';
+  }catch(e){
+    document.getElementById('saveStatus').textContent='Could not download backup. Use Export backup or Print / PDF.';
+  }
+};
+document.getElementById('printBtn').onclick=()=>window.print();
+document.getElementById('exportBtn').onclick=()=>{
+  save();
+  try{downloadBackup();}
+  catch(e){document.getElementById('saveStatus').textContent='Could not download backup. Try Print / PDF.';}
+};
+document.getElementById('importBtn').onclick=()=>document.getElementById('importFile').click();
+document.getElementById('importFile').onchange=e=>{const f=e.target.files[0];if(!f)return;const r=new FileReader();r.onload=()=>{try{apply(JSON.parse(r.result));save();}catch(err){alert('That backup file could not be read.');}};r.readAsText(f);};
+document.getElementById('sectionCount').textContent=`1 of ${sections.length} sections`;
+</script>
+</body>
+</html>
